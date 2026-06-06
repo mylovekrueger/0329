@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-color-theme="black-white">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>屏间拾光</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" sizes="192x192" href="https://file.youtochat.com/images/20260216/1771224856844_qdqqd.jpeg">
+    <link rel="apple-touch-icon" href="https://file.youtochat.com/images/20260216/1771224856844_qdqqd.jpeg">
+    <meta name="apple-mobile-web-app-title" content="ʚ𝑳𝑶𝑽𝑬ɞ">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <style id="css-live-preview-style"></style>
+</head>
+<body>
+
+<div class="welcome-animation" id="welcome-animation">
+    <div class="welcome-bg-gradient"></div>
+    <div class="stars-container" id="stars-container"></div>
+    <div class="welcome-particles" id="welcome-particles"></div>
+    <div id="welcome-meteors" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;"></div>
+    <div class="welcome-content-wrapper">
+        <div class="logo-tech-container">
+            <div class="logo-circle-outer"></div>
+            <div class="logo-circle-inner"></div>
+            <div class="logo-icon-main">
+                <i class="fas fa-satellite-dish"></i>
+            </div>
+            <div class="orbit-dot"></div>
+            <div class="orbit-dot-2"></div>
+            <div class="orbit-dot-3"></div>
+        </div>
+        <div class="text-tech-container">
+            <div class="welcome-title-glitch" id="welcome-title-glitch" data-text="屏间拾光">
+                屏间拾光
+            </div>
+            <div class="welcome-subtitle-scramble" id="welcome-subtitle-scramble">
+                连接中
+            </div>
+        </div>
+        <div class="loader-tech">
+            <div class="loader-tech-bar" id="loader-tech-bar"></div>
+        </div>
+    </div>
+</div>
+
+<button id="immersive-exit-btn" onclick="toggleImmersiveMode(false)" title="退出沉浸模式">
+<i class="fas fa-expand"></i>
+</button>
+
+<div class="header">
+    <div class="header-motto">屏间拾光</div>
+    <div class="header-inner">
+        <div class="user-info">
+            <div id="partner-name" class="username">梦角</div>
+            <div id="partner-avatar-container" class="avatar-container">
+                <div class="avatar" id="partner-avatar"><i class="fas fa-user"></i></div>
+            </div>
+            <div class="status" id="partner-status"><span>在线</span></div>
+        </div>
+        <div class="header-actions">
+            <button id="session-manager-btn" class="action-btn" title="会话管理"><i class="fas fa-comments"></i></button>
+            <button id="group-chat-btn" class="action-btn" title="群聊设置"><i class="fas fa-users"></i></button>
+            <button id="daily-greeting-btn" class="action-btn" title="今日公告" onclick="reopenDailyGreeting()"><i class="fas fa-newspaper"></i></button>
+            <button id="theme-toggle" class="action-btn" title="切换主题"><i class="fas fa-moon"></i></button>
+            <button id="settings-btn" class="action-btn" title="设置"><i class="fas fa-cog"></i></button>
+        </div>
+        <div class="user-info">
+            <div class="username" id="my-name">我</div>
+            <div id="my-avatar-container" class="avatar-container">
+                <div class="avatar" id="my-avatar"><i class="fas fa-user"></i></div>
+            </div>
+            <div class="status" id="my-status-container"><span id="my-status-text">在线</span></div>
+        </div>
+    </div>
+</div>
+
+<div class="main-chat-area">
+    <div class="history-loader" id="history-loader"><div class="history-spinner"></div></div>
+    <div class="chat-container" id="chat-container"></div>
+    <div class="empty-state" id="empty-state" style="display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;width:100%;pointer-events:none;z-index:1;">
+        <div style="position:relative;margin-bottom:20px;">
+            <i class="fas fa-heart" style="font-size:52px;opacity:0.55;color:var(--accent-color);"></i>
+            <i class="fas fa-comment-dots" style="position:absolute;bottom:-6px;right:-10px;font-size:26px;opacity:0.65;color:var(--accent-color);"></i>
+        </div>
+        <p style="font-size:15px;font-weight:600;color:var(--accent-color);opacity:0.9;letter-spacing:1px;">✦ 我们的故事，始于此刻 ✦</p>
+        <p style="font-size:12px;margin-top:8px;opacity:0.65;letter-spacing:0.5px;color:var(--text-secondary);">说点什么，让对话开始吧</p>
+    </div>
+    <div id="typing-indicator-wrapper">
+        <div class="typing-indicator" id="typing-indicator">
+            <div class="typing-indicator-avatar" id="typing-indicator-avatar"><i class="fas fa-user"></i></div>
+            <span class="typing-indicator-label" id="typing-indicator-label"></span>
+            <div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+        </div>
+    </div>
+</div>
+
+<div class="input-area-wrapper">
+    <div class="batch-preview" id="batch-preview"></div>
+    <div id="reply-preview-container"></div>
+    <div class="input-area">
+        <button class="attachment-btn input-btn" id="attachment-btn" title="发送图片"><i class="fas fa-image"></i></button>
+        <button class="combo-btn input-btn" id="combo-btn" title="表情 & 拍一拍"><i class="fas fa-laugh-beam"></i></button>
+        <textarea class="message-input" id="message-input" placeholder="" rows="1"></textarea>
+        <div class="input-buttons">
+            <button class="continue-btn input-btn" id="continue-btn" title="让对方继续说"><i class="fas fa-ellipsis-h"></i></button>
+            <button class="batch-btn input-btn" id="batch-btn" title="批量发送模式"><i class="fas fa-layer-group"></i></button>
+            <button class="send-btn input-btn" id="send-btn" title="发送消息"><i class="fas fa-paper-plane"></i></button>
+        </div>
+        <input type="file" id="image-input" class="file-input" accept="image/*">
+    </div>
+</div>
+
+<script>
+// 自动跳过所有弹窗，直接进入页面
+document.addEventListener("DOMContentLoaded", function(){
+    setTimeout(()=>{
+        document.getElementById("welcome-animation").style.display = "none";
+    }, 1500);
+});
+</script>
+
+</body>
+</html>
